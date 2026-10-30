@@ -1,0 +1,12 @@
+name: Probe Head Branch
+on:
+  workflow_run:
+    types: [completed]
+    workflows: [Build]
+    branches: ['probe/branch-x']
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "PROBE-HEAD FIRED event=${{ github.event.workflow_run.event }} head_branch=${{ github.event.workflow_run.head_branch }}"
