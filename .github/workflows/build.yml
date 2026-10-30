@@ -1,0 +1,25 @@
+name: Build
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create build artifact
+        run: |
+          mkdir -p build/mirror
+          printf 'src\tmirror\tslug\n' > build/plugins.tsv
+          echo benign > build/mirror/README.txt
+          tar -cJf jetpack-build.tar.xz build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jetpack-build.tar.xz
+          path: jetpack-build.tar.xz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugins.tsv
+          path: build/plugins.tsv
